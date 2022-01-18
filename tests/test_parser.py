@@ -44,10 +44,14 @@ def non_package_lines() -> Sequence[str]:
 
 
 class TestParser:
-    """Test for the parser itself."""
+    """Tests for the parser itself."""
 
     def test_line_containing_no_package_info_returns_none(self, non_package_lines):
-        for file_line in non_package_lines:
-            output: DebPakInfo | None = Parser._parse_line(file_line)
+        for line in non_package_lines:
+            output: DebPakInfo | None = Parser._parse_line(line)
             assert output is None
 
+    def test_simple_package_line_returns_info(self):
+        line: str = "  + package1 "
+        output: DebPakInfo | None = Parser._parse_line(line)
+        assert output.name == "package1"

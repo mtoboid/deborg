@@ -1,5 +1,6 @@
 from __future__ import annotations
 from dataclasses import dataclass
+import re
 
 
 @dataclass
@@ -11,6 +12,9 @@ class DebPakInfo:
 
 
 class Parser:
+    """Class that contains methods to parse an emacs .org file """
     @staticmethod
     def _parse_line(line: str) -> DebPakInfo | None:
-        pass
+        out: DebPakInfo | None = None
+        return None
+
