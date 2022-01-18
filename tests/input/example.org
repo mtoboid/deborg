@@ -1,0 +1,50 @@
+# File listing all packages that should be installed on one of my linux systems
+#+LANGUAGE: en
+#+TITLE: Linux Packages
+
+* Header1
+** Subheader1 ([[https://github.com/examplesite/project][github link]])
+   + package
+   + package2
+   + package-with-hyphens
+   + package5-hyphen
+
+* Header 2
+  Some information text which we want to have in our file but don't want to
+  parse. This can span several lines and could include tags such as ~code~ or
+  even =verbatim text=. We also don't want to exclude it might contain + or -,
+  however, they can't be at the start of a line!
+  
+  + packageX :: some comments about that package
+    
+* More complex patterns
+  Here we check that we can parse all the patterntypes we want to include.
+** 1 - basic
+   + basic-package1
+
+** 2 - basic + comment
+   + basic-commented-package2 :: some comment
+
+** 3 - package and distro for which it should be installed
+   + package-dist3 {distro}
+
+** 4 - package and distro for which it should be installed (commented)
+   + package-dist4 {distro} :: some comment here
+
+** 5 - different packages for different distros
+   + package-distA5 {distroA}, package-distB5 {distroB}
+
+** 6 - different packages for different distros (commented)
+   + package-distA6 {distroA}, package-distB6 {distroB} :: and some comment
+
+** 7 - package with distro and release
+   + package-distA7 {distroA:release}
+
+** 8 - package with distro and release (commented)
+   + package-distA8 {distroA:release} :: and again some comment
+
+** 9 - different packages for different distros, releases
+   + package-distA9 {distroA:release1}, package-distB9 {distroA:release2}
+
+** 10 - different packages for different distros, releases (commented)
+   + package-distA10 {distroA:release1}, package-distB10 {distroB:release2} :: comment here
