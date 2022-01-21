@@ -24,7 +24,7 @@ class Parser:
     )
 
     @staticmethod
-    def _extract_deb_packages(line: str) -> list[DebPakInfo]:
+    def _extract_deb_packages_from_line(line: str) -> list[DebPakInfo]:
         """
         Parse a line of the form:
         <list-bullet> <package-name1> {<distro-name1>:<release1>}, <package-name2> {...}, ... :: <comment>
@@ -40,7 +40,6 @@ class Parser:
         :return: a list of DebPakInfo objects, or an empty list, if the line does not specify any deb packages.
         """
         out: list[DebPakInfo] = list()
-
         if Parser._is_package_line(line):
             # remove <list-bullet>
             _line: str = line.strip()[1:].strip()
@@ -50,7 +49,6 @@ class Parser:
             packages = _line.split(",")
             for pak in packages:
                 out.append(Parser._get_package_info(pak))
-
         return out
 
     @staticmethod
