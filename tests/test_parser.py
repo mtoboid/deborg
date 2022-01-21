@@ -43,15 +43,35 @@ def non_package_lines() -> Sequence[str]:
     ]
 
 
+@pytest.fixture
+def package_info_str_input() -> Sequence[tuple[str, DebPakInfo]]:
+    return [
+        ("package",
+         DebPakInfo(name="package")),
+        (" pack1 {Debian} ",
+         DebPakInfo(name="pack1", distro="Debian")),
+        (" p-1-package {Debian:10}  ",
+         DebPakInfo(name="p-1-package", distro="Debian", release="10")),
+        (" thisisa-n20-package {Ubuntu:bionic}",
+         DebPakInfo(name="thisisa-n20-package", distro="Ubuntu", release="bionic")),
+        ("otherone {Ubuntu:18.04}",
+         DebPakInfo(name="otherone", distro="Ubuntu", release="18.04"))
+    ]
+
+
 class TestParser:
     """Tests for the parser itself."""
 
-    def test_line_containing_no_package_info_returns_none(self, non_package_lines):
+    def test_get_package_info(self, package_info_str_input):
+        for line, pakinfo in package_info_str_input:
+            assert Parser._get_package_info(line) == pakinfo
+
+    def test_line_containing_no_package_info_returns_empty_list(self, non_package_lines):
         for line in non_package_lines:
-            output: DebPakInfo | None = Parser._parse_line(line)
-            assert output is None
+            output: list[DebPakInfo] = Parser._extract_deb_packages(line)
+            assert output == []
 
     def test_simple_package_line_returns_info(self):
         line: str = "  + package1 "
-        output: DebPakInfo | None = Parser._parse_line(line)
-        assert output.name == "package1"
+        output: list[DebPakInfo] = Parser._extract_deb_packages(line)
+        assert len(output) == 1 and output[0].name == "package1"
