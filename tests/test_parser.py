@@ -270,5 +270,3 @@ class TestParser:
             packages: list[str] = Parser.extract_deb_packages(
                 file.as_posix(), distro, release)
             assert sorted(packages) == sorted(expected_out)
-
-
