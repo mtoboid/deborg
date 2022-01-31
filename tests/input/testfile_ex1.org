@@ -1,4 +1,8 @@
-# File listing all packages that should be installed on one of my linux systems
+# Testfile with examples for possible cases for tests/test_parser.py.
+# When changing any test relevant content in this file, make sure to also
+# !! CHANGE SETTINGS in the pytest.fixture org_file1_tests() !!
+# filename: testfile_ex1.org, normal content starts here:
+#
 #+LANGUAGE: en
 #+TITLE: Linux Packages
 
@@ -16,9 +20,13 @@
   however, they can't be at the start of a line!
   
   + packageX :: some comments about that package
+
+  (this is actually an illegal Debian package name, but it is not up to us to
+   fix this. The package manager will complain and then the typo in the file
+   can be fixed.)
     
 * More complex patterns
-  Here we check that we can parse all the patterntypes we want to include.
+  Here we check that we can parse all the pattern-types we want to include.
 ** 1 - basic
    + basic-package1
 
@@ -38,13 +46,19 @@
    + package-distA6 {distroA}, package-distB6 {distroB} :: and some comment
 
 ** 7 - package with distro and release
-   + package-distA7 {distroA:release}
+   + package-distA7 {distroA:release1}
 
 ** 8 - package with distro and release (commented)
-   + package-distA8 {distroA:release} :: and again some comment
+   + package-distA8 {distroA:release1} :: and again some comment
 
 ** 9 - different packages for different distros, releases
    + package-distA9 {distroA:release1}, package-distB9 {distroA:release2}
 
 ** 10 - different packages for different distros, releases (commented)
    + package-distA10 {distroA:release1}, package-distB10 {distroB:release2} :: comment here
+
+** 11 - one general package only different for one specific distro + release
+   + package-distA11, package-distB11 {distroB:release1}
+
+** 12 - same package for all releases of one distro, but specific one for one specific release
+   + package-distA12 {distroA}, package-distB12 {distroA:release2}

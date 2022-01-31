@@ -19,14 +19,16 @@ class Parser:
     LIST_BULLETS: str = "-+"
 
     @staticmethod
-    def extract_deb_packages(file: str, distro: str, release: str) -> list[DebPakInfo]:
-        _lines: list[str]
-        _packages: list[DebPakInfo] = list()
+    def extract_deb_packages(file: str, distro: str, release: str) -> list[str]:
+        lines: list[str]
+        packages: list[DebPakInfo] = list()
         with open(file, "r") as _file:
-            _lines = _file.readlines()
-        for _line in _lines:
-            _packages.append(Parser.extract_deb_package_from_line(_line, distro, release))
-        return _packages
+            lines = _file.readlines()
+        for line in lines:
+            package = Parser.extract_deb_package_from_line(line, distro, release)
+            if package:
+                packages.append(package)
+        return [p.name for p in packages]
 
     @staticmethod
     def extract_deb_package_from_line(line: str, distro: str, release: str) -> DebPakInfo | None:

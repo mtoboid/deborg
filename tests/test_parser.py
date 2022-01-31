@@ -2,13 +2,13 @@ from __future__ import annotations
 
 import pytest
 from collections.abc import Sequence
-
+from pathlib import Path
 
 from src.deborg.parser import DebPakInfo, Parser
 
 
 class TestDebPakInfo:
-    """Tests for the dataclass used to store the parsed packages."""
+    """Tests for the dataclass used to hold deb package information."""
     def test_instantiation_name_only(self):
         d: DebPakInfo = DebPakInfo("package_name")
         assert d.name == "package_name"
@@ -30,6 +30,7 @@ class TestDebPakInfo:
 
 @pytest.fixture
 def non_package_lines() -> Sequence[str]:
+    """Text that could occur in the file, but is not a line specifying a deb package."""
     return [
         "",
         "This is just a line",
@@ -61,6 +62,7 @@ def package_info_str_input() -> Sequence[tuple[str, DebPakInfo]]:
 
 @pytest.fixture
 def deb_package_line_input() -> Sequence[tuple[str, str, str, DebPakInfo]]:
+    """1) Input line | 2) distro (arg) | 3) release (arg) | 4) expected out"""
     return [
         ("This is not a package line...",
          "any_distro", "any_release",
@@ -116,6 +118,132 @@ def deb_package_line_input() -> Sequence[tuple[str, str, str, DebPakInfo]]:
     ]
 
 
+# packages obtained from parsing a file
+ExpectedPackagesOutput = Sequence[str]
+# distro, release, expected_output
+InputOutputSpec = tuple[str, str, ExpectedPackagesOutput]
+
+
+@pytest.fixture
+def org_file1_tests() -> tuple[Path, Sequence[InputOutputSpec]]:
+    """Parsing tests for file ./tests/input/testfile_ex1.org."""
+    testfile: str = "input/testfile_ex1.org"
+    test_dir: Path = Path(__file__).resolve().parent
+    test_input_org_file: Path = test_dir.joinpath(testfile)
+    if not test_input_org_file.exists():
+        raise FileNotFoundError(f"Testfile: {testfile} not found.")
+
+    test_params: list[InputOutputSpec] = [
+        ("distro", "any",
+         [
+            "package",
+            "package2",
+            "package-with-hyphens",
+            "package5-hyphen",
+            "packageX",
+            "basic-package1",
+            "basic-commented-package2",
+            "package-dist3",
+            "package-dist4",
+            "package-distA11"
+         ]),
+
+        ("distroA", "any",
+         [
+            "package",
+            "package2",
+            "package-with-hyphens",
+            "package5-hyphen",
+            "packageX",
+            "basic-package1",
+            "basic-commented-package2",
+            "package-distA5",
+            "package-distA6",
+            "package-distA11",
+            "package-distA12"
+         ]),
+
+        ("distroA", "release1",
+         [
+            "package",
+            "package2",
+            "package-with-hyphens",
+            "package5-hyphen",
+            "packageX",
+            "basic-package1",
+            "basic-commented-package2",
+            "package-distA5",
+            "package-distA6",
+            "package-distA7",
+            "package-distA8",
+            "package-distA9",
+            "package-distA10",
+            "package-distA11",
+            "package-distA12"
+         ]),
+
+        ("distroA", "release2",
+         [
+            "package",
+            "package2",
+            "package-with-hyphens",
+            "package5-hyphen",
+            "packageX",
+            "basic-package1",
+            "basic-commented-package2",
+            "package-distA5",
+            "package-distA6",
+            "package-distB9",
+            "package-distA11",
+            "package-distB12"
+         ]),
+
+        ("distroB", "any",
+         [
+            "package",
+            "package2",
+            "package-with-hyphens",
+            "package5-hyphen",
+            "packageX",
+            "basic-package1",
+            "basic-commented-package2",
+            "package-distB5",
+            "package-distB6",
+            "package-distA11"
+         ]),
+
+        ("distroB", "release1",
+         [
+            "package",
+            "package2",
+            "package-with-hyphens",
+            "package5-hyphen",
+            "packageX",
+            "basic-package1",
+            "basic-commented-package2",
+            "package-distB5",
+            "package-distB6",
+            "package-distB11"
+         ]),
+
+        ("distroB", "release2",
+         [
+            "package",
+            "package2",
+            "package-with-hyphens",
+            "package5-hyphen",
+            "packageX",
+            "basic-package1",
+            "basic-commented-package2",
+            "package-distB5",
+            "package-distB6",
+            "package-distB10",
+            "package-distA11"
+         ])
+    ]
+    return test_input_org_file, test_params
+
+
 class TestParser:
     """Tests for the parser itself."""
 
@@ -133,6 +261,14 @@ class TestParser:
             package_info = Parser.extract_deb_package_from_line(line, *param)
             assert package_info == expected_DebPakInfo
 
-    def test_extract_deb_packages_file(self):
-        # TODO !!
-        pass
+    def test_extract_deb_packages(self, org_file1_tests):
+        file: Path
+        io_args: InputOutputSpec
+        file, io_args = org_file1_tests
+        for args in io_args:
+            distro, release, expected_out = args
+            packages: list[str] = Parser.extract_deb_packages(
+                file.as_posix(), distro, release)
+            assert sorted(packages) == sorted(expected_out)
+
+
