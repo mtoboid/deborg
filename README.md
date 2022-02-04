@@ -6,7 +6,7 @@
 When setting up a new machine, one big task is to get all the functionality back
 that one relied on for productivity on the old system, which also entails
 installing the same packages. Furthermore, when using several computers with
-slightly different setup requirements (one Debian, one Ubunt, another a netbook
+slightly different setup requirements (one Debian, one Ubuntu, another a netbook
 which can't handle everything), this can become time consuming.
 
 To be able to get a newly installed system into the state I want it in, I
@@ -108,6 +108,7 @@ Example of a valid orgfile:
 **deborg** returns all extracted packages as a string separated by the specified
 **sep**arator which defaults to space `' '`.
 
+
 ## Examples / Usage
 
 Input orgmode file:
@@ -121,32 +122,48 @@ Input orgmode file:
 ```
 
 Output:
+
+Normally use `lsb_release` in a script to obtain *'distro'* and *'release'*
+we set it here explicitly for clarity.
+
+1) on a Debian 10 system
 ```
-# Normally use lsb_release in a script to obtain 'distro' and 'release'
-# we just set it here explicitly for clarity
-
-# 1) on a Debian 10 system
-deborg example.org "Debian" "10"
-"package1 package2a package3 package4"
-
-# 2) on a Debian 11 system
-deborg example.org "Debian" "11"
-"package1 package2b package3 package4"
-
-# 3) on a Ubuntu 18.04 system
-deborg example.org "Ubuntu" "18.04"
-"package1 package2c"
-
-# 4) on a Ubuntu 20.04 system
-deborg example.org "Ubuntu" "20.04"
-"package1 package2c package4"
-
-# 5) setting sep
-deborg example.org "Debian" "9" --sep=":::"
-"package1:::package2a:::package3:::package4"
+$ deborg example.org "Debian" "10"
+package1 package2a package3 package4
+$
 ```
+
+2) on a Debian 11 system
+```
+$ deborg example.org "Debian" "11"
+package1 package2b package3 package4
+$
+```
+
+3) on a Ubuntu 18.04 system
+```
+$ deborg example.org "Ubuntu" "18.04"
+package1 package2c
+$
+```
+
+4) on a Ubuntu 20.04 system
+```
+$ deborg example.org "Ubuntu" "20.04"
+package1 package2c package4
+$
+```
+
+5) setting **sep**
+```
+$ deborg example.org "Debian" "9" --sep=":::"
+package1:::package2a:::package3:::package4
+$
+```
+
 
 ## License
+
 **deborg** is released under the [MIT License][MIT spdx].
 
 
