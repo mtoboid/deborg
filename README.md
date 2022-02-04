@@ -123,8 +123,8 @@ Input orgmode file:
 
 Output:
 
-Normally use `lsb_release` in a script to obtain *'distro'* and *'release'*
-we set it here explicitly for clarity.
+Normally use `lsb_release` in a script to obtain *'distro'* and *'release'*, we
+set it here explicitly for clarity.
 
 1) on a Debian 10 system
 ```
