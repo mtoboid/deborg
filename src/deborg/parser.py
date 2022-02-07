@@ -1,7 +1,22 @@
-# Copyright 2022 Tobias Marczewski (mtoboid)
-# SPDX-License-Identifier: MIT
+"""
+Parse an emacs orgmode file to extract Debian package information.
+
+Classes:
+
+    DebPakInfo
+    Parser
+
+Misc variables:
+
+    __author__
+    __version__
+"""
 
 from __future__ import annotations
+
+__author__ = "Tobias Marczewski"
+__version__ = "1.0.0"
+
 
 import re
 
@@ -11,19 +26,32 @@ from dataclasses import dataclass
 
 @dataclass
 class DebPakInfo:
-    """Basic information regarding a .deb package."""
+    """
+    Basic information container for a .deb package (name, distro, release).
+    """
     name: str
     distro: str = None
     release: str = None
 
 
 class Parser:
-    """Class that contains methods to parse an emacs .org file """
+    """Class that contains static methods to parse an emacs .org file """
+
     # symbols that can indicate a line in a list, which can contain a .deb package
     LIST_BULLETS: str = "-+"
 
     @staticmethod
     def extract_deb_packages(file: str, distro: str, release: str) -> list[str]:
+        """
+        Extract .deb packages from a file that match distro and release.
+        (for line format see :py:func:`~parser.Parser.extract_deb_package_from_line`)
+
+        :param file: filename of the orgmode file
+        :param distro: string
+        :param release: string
+        :return: list of packages
+        """
+
         lines: list[str]
         packages: list[DebPakInfo] = list()
         with open(file, "r") as _file:
@@ -64,7 +92,7 @@ class Parser:
         # parse packages and info
         packages.extend([Parser._get_package_info(pak) for pak in _line.split(",")])
 
-        # filter packages (by adding a score)
+        # filter packages
         # if a package lacks distro or release information (=None) treat it
         # to match any distro or release. If an exact match for distro or
         # distro and release can be found return this.
@@ -90,7 +118,10 @@ class Parser:
 
     @staticmethod
     def _matching_packages(packages: Sequence[DebPakInfo], distro: str, release: str) -> list[DebPakInfo]:
-        """Filter packages by distro and release."""
+        """
+        Filter packages by distro and release.
+        (Retain all packages that are not in conflict with the specified distro or release)
+        """
         matching: list[DebPakInfo] = list()
         for package in packages:
             if package.release is not None and package.release != release:
@@ -103,15 +134,15 @@ class Parser:
 
     @staticmethod
     def _is_package_line(line: str) -> bool:
-        """Is the passed line a list entry that contains package information?"""
+        """Is the passed line a list entry that can contain package information?"""
         check = re.match("^\\s*[" + Parser.LIST_BULLETS + "]\\s+\\w", line)
         return True if check else False
 
     @staticmethod
     def _get_package_info(string: str) -> DebPakInfo:
         """
-        Extract debian package information from a line of the form:
-        <package-name> {<distro-name>:<release>}
+        Extract debian package information from a string of the form:
+        '<package-name> {<distro-name>:<release>}'
         """
         package_info_regex: re.Pattern = re.compile(
             "\\s*(?P<package_name>[-\\w]+)" +
@@ -128,4 +159,3 @@ class Parser:
             distro=pak.group("distro_name"),
             release=pak.group("release")
         )
-

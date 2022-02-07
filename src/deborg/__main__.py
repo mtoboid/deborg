@@ -1,4 +1,10 @@
 #!/usr/bin/env python3
+"""
+Provide the cli program 'deborg'.
+"""
+
+__author__ = "Tobias Marczewski"
+__version__ = "1.0.0"
 
 import argparse
 import sys
@@ -8,15 +14,19 @@ from deborg.parser import Parser
 
 def main():
     parser = argparse.ArgumentParser(
-        description="Extract package information from an emacs .org file."
+        prog="deborg",
+        formatter_class=argparse.RawDescriptionHelpFormatter,
+        description="Extract package information from an emacs .org file.",
+        #       *                                                                               *
+        epilog="To obtain distro and release information use a tool like 'lsb_release' which is " +
+               "generally available for Debian or Ubuntu:\n" +
+               "distro: lsb_release --short --id\n" +
+               "release: lsb_release --short --release"
     )
-    # TODO: add info to use lsb_release
-    # distro: lsb_release --short --id
-    # release: lsb_release --short --release
     parser.add_argument(
         "orgfile",
         help="The .org file to parse, for the required format see examples.",
-        type=Path
+        type=argparse.FileType('r')
     )
     parser.add_argument(
         "distro",
