@@ -44,7 +44,7 @@ class Parser:
     def extract_deb_packages(file: str, distro: str, release: str) -> list[str]:
         """
         Extract .deb packages from a file that match distro and release.
-        (for line format see :py:func:`~parser.Parser.extract_deb_package_from_line`)
+        (for line format see :func:`~parser.Parser.extract_deb_package_from_line`)
 
         :param file: filename of the orgmode file
         :param distro: string

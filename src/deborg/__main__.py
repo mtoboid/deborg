@@ -11,7 +11,7 @@ import sys
 from pathlib import Path
 from deborg.parser import Parser
 
-
+# TODO add an option to display version information
 def main():
     parser = argparse.ArgumentParser(
         prog="deborg",
