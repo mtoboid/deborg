@@ -1,3 +1,4 @@
 extend-diff-ignore="\.egg-info$"
 extend-diff-ignore="venv/.*"
 extend-diff-ignore="dist/.*"
+extend-diff-ignore="\..*"
