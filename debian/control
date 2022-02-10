@@ -1,0 +1,18 @@
+Source: deborg
+Maintainer: Tobias Marczewski (mtoboid) <vortex@e.mail.de>
+Section: python
+Priority: optional
+Build-Depends:
+ debhelper (>= 12),
+ dh-python,
+ python3-all,
+ python3-argparse-manpage,
+ python3-setuptools
+Standards-Version: 4.4.0
+Homepage: https://github.com/mtoboid/deborg
+X-Python3-Version: >= 3.8
+
+Package: python3-deborg
+Architecture: all
+Depends: ${misc:Depends}, ${python3:Depends}
+Description: Extract deb package information from an emacs org file.
