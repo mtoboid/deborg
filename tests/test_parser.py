@@ -4,7 +4,7 @@ import pytest
 from collections.abc import Sequence
 from pathlib import Path
 
-from src.deborg.parser import DebPakInfo, Parser
+from deborg.parser import DebPakInfo, Parser
 
 
 class TestDebPakInfo:
