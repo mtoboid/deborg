@@ -164,8 +164,8 @@ $
 
 ## License
 
-**deborg** is released under the [MIT License][MIT spdx].
+**deborg** is released under the [GPL-3][GPL-3 spdx].
 
 
 [orgmode]: https://orgmode.org/
-[MIT spdx]: https://spdx.org/licenses/MIT.html
+[GPL-3 spdx]: https://spdx.org/licenses/GPL-3.0-or-later.html
