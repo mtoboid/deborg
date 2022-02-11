@@ -16,3 +16,8 @@ Package: python3-deborg
 Architecture: all
 Depends: ${misc:Depends}, ${python3:Depends}
 Description: Extract deb package information from an emacs org file.
+ Parse an emacs orgmode (.org) file which contains package specifications to
+ extract packages depending on the tags 'distro' and 'release'. This information
+ can then be used to install those packages with dpkg or apt. The org-file can
+ contain other text and comments as only list entries will be treated as package
+ information.
