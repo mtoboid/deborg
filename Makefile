@@ -41,6 +41,7 @@ GBP_BUILD_DIR = $(PROJECT_DIR)/$$($(GBP) config buildpackage.export-dir | sed 's
 # destination
 PACKAGE_DIR = $(DIST_DIR)/Debian
 
+
 # only allow usage when VERSION is unset
 .PHONY: usage
 usage:
@@ -57,32 +58,6 @@ usage:
 	@echo "              The version in debian/changelog, and dist have to match!"
 	@echo ""
 
-# ensure the variable VERSION has been set
-ifndef VERSION
-# VERSION NOT set (always display usage)
-.PHONY: *
-*: usage
-
-# VERSION has been SET
-else
-
-.PHONY: all
-all: test
-
-.PHONY: test
-test:
-	@echo "DIST_DIR = $(DIST_DIR)"
-	@echo "tarball = $(DIST_DIR)/deborg-$(VERSION).tar.gz"
-	@echo "GBP_BUILD_DIR = $(GBP_BUILD_DIR)"
-	@echo "PACKAGE_DIR = $(PACKAGE_DIR)"
-
-# Build a debian package
-.PHONY: deb_package
-deb_package: $(DEB_TARBALL)
-	@echo "Building Debian package with VERSION = $(VERSION)"
-	cd $(PROJECT_DIR) && $(GBP_BUILD)
-	mv $(GBP_BUILD_DIR) $(PACKAGE_DIR)
-
 # Build the python package
 .PHONY: python_package
 python_package: $(VENV_ACTIVATE)
@@ -95,31 +70,59 @@ $(VENV_ACTIVATE):
 	$(PYTHON) -m pip install -r $(REQUIREMENTS)
 	@echo "Finished setting up the python virtual environment."
 
+# only allow with set VERSION variable.
+ifdef VERSION
+# Build a debian package
+.PHONY: deb_package
+deb_package: $(DEB_TARBALL)
+	@echo "Building Debian package with VERSION = $(VERSION)"
+	cd $(PROJECT_DIR) && $(GBP_BUILD)
+	mv $(GBP_BUILD_DIR) $(PACKAGE_DIR)
 
 
 # Create the tarball named as debian packaging tools expect it.
 $(DEB_TARBALL): $(TARBALL)
 	cp $< $@
+else
+.PHONY: deb_package
+deb_package:
+	@echo "VERSION is undefined, see 'make usage'"
+
+# VERSION defined block
+endif
 
 # CLEANING
+.PHONY: clean
+clean: clean_all
+
 .PHONY: clean_all
 clean_all: clean_deb_packaging clean_python_build clean_python_venv
 
 # Remove files created for debian package build process
-.PHONY: clean_deb_packing
-clean_deb_packing:
-	[ -e $(DEB_TARBALL) ] && rm $(DEB_TARBALL)
+.PHONY: clean_deb_packaging
+clean_deb_packaging:
+	@if [ -e $(DEB_TARBALL) ]; then rm $(DEB_TARBALL); fi
 
 # Remove virtual environment
 .PHONY: clean_python_venv
 clean_python_venv:
-	[ -e $(VENV_DIR) ] && rm -rf $(VENV_DIR)
+	@if [ -e $(VENV_DIR) ]; then rm -rf $(VENV_DIR); fi
 
 # Remove files created for python package build process
 .PHONY: clean_python_build
 clean_python_build:
-	[ -e $(DIST_DIR) ] && rm -rf $(DIST_DIR)
+	@if [ -e $(DIST_DIR) ]; then rm -rf $(DIST_DIR); fi
 
-# VERSION set condition
-endif
+
+.PHONY: all
+all: test
+
+.PHONY: test
+test:
+	@:$(call ensure_var_VERSION_defined)
+	@echo "DIST_DIR = $(DIST_DIR)"
+	@echo "tarball = $(DIST_DIR)/deborg-$(VERSION).tar.gz"
+	@echo "GBP_BUILD_DIR = $(GBP_BUILD_DIR)"
+	@echo "PACKAGE_DIR = $(PACKAGE_DIR)"
+
 
