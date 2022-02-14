@@ -18,14 +18,28 @@
 #    along with this program.  If not, see <https://www.gnu.org/licenses/>.
 #
 #
-SHELL = /bin/sh
+SHELL = /usr/bin/sh
+PROJECT_DIR := $(realpath .)
 
-# git-buildpackage command
-GBP = gbp buildpackage --git-ignore-new
 
-DIST_DIR = $(realpath ../dist)
+# source files
+DIST_DIR = $(PROJECT_DIR)/dist
 TARBALL = $(DIST_DIR)/deborg-$(VERSION).tar.gz
 DEB_TARBALL = $(DIST_DIR)/deborg_$(VERSION).orig.tar.gz
+
+# python
+PYTHON = /usr/bin/python3
+VENV_DIR = $(PROJECT_DIR)/venv
+VENV_ACTIVATE = $(VENV_DIR)/bin/activate
+REQUIREMENTS = $(PROJECT_DIR)/requirements.txt
+
+# git-buildpackage
+GBP = gbp
+GBP_BUILD = $(GBP) buildpackage
+GBP_BUILD_DIR = $(PROJECT_DIR)/$$($(GBP) config buildpackage.export-dir | sed 's|^./||')
+
+# destination
+PACKAGE_DIR = $(DIST_DIR)/Debian
 
 # only allow usage when VERSION is unset
 .PHONY: usage
@@ -56,26 +70,55 @@ else
 all: test
 
 .PHONY: test
-test: $(DEB_TARBALL)
+test:
 	@echo "DIST_DIR = $(DIST_DIR)"
 	@echo "tarball = $(DIST_DIR)/deborg-$(VERSION).tar.gz"
-
+	@echo "GBP_BUILD_DIR = $(GBP_BUILD_DIR)"
+	@echo "PACKAGE_DIR = $(PACKAGE_DIR)"
 
 # Build a debian package
 .PHONY: deb_package
 deb_package: $(DEB_TARBALL)
 	@echo "Building Debian package with VERSION = $(VERSION)"
-	cd .. && $(GBP)
+	cd $(PROJECT_DIR) && $(GBP_BUILD)
+	mv $(GBP_BUILD_DIR) $(PACKAGE_DIR)
+
+# Build the python package
+.PHONY: python_package
+python_package: $(VENV_ACTIVATE)
+	@echo "Building the python package."
+	$(SHELL) -c '. $(VENV_ACTIVATE); python3 -m build --outdir $(DIST_DIR)'
+
+# Setup a Python virtual environment
+$(VENV_ACTIVATE):
+	$(PYTHON) -m venv $(VENV_DIR)
+	$(PYTHON) -m pip install -r $(REQUIREMENTS)
+	@echo "Finished setting up the python virtual environment."
+
 
 
 # Create the tarball named as debian packaging tools expect it.
 $(DEB_TARBALL): $(TARBALL)
 	cp $< $@
 
-# Remove files created for build process
-.PHONY: clean
-clean:
+# CLEANING
+.PHONY: clean_all
+clean_all: clean_deb_packaging clean_python_build clean_python_venv
+
+# Remove files created for debian package build process
+.PHONY: clean_deb_packing
+clean_deb_packing:
 	[ -e $(DEB_TARBALL) ] && rm $(DEB_TARBALL)
+
+# Remove virtual environment
+.PHONY: clean_python_venv
+clean_python_venv:
+	[ -e $(VENV_DIR) ] && rm -rf $(VENV_DIR)
+
+# Remove files created for python package build process
+.PHONY: clean_python_build
+clean_python_build:
+	[ -e $(DIST_DIR) ] && rm -rf $(DIST_DIR)
 
 # VERSION set condition
 endif
