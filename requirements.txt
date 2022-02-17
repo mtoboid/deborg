@@ -1,9 +1,12 @@
 attrs==21.4.0
--e git+ssh://Github/mtoboid/deborg.git@11c58b3e4af3daf7b9c805a06cc062c477b95a6d#egg=deborg
+build==0.7.0
+deborg @ file:///home/tobi/Programming/Projects/deborg
 iniconfig==1.1.1
 packaging==21.3
+pep517==0.12.0
+pkg_resources==0.0.0
 pluggy==1.0.0
 py==1.11.0
-pyparsing==3.0.6
-pytest==6.2.5
-toml==0.10.2
+pyparsing==3.0.7
+pytest==7.0.1
+tomli==2.0.1
