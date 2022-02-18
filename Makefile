@@ -21,18 +21,18 @@
 SHELL = /usr/bin/sh
 PROJECT_DIR := $(realpath .)
 
+# use the version from the setup config file
+VERSION = $(shell sed -E -n 's/^version *= *([0-9\.]+)/\1/p' $(PROJECT_DIR)/setup.cfg)
 
 # source file directory
 DIST_DIR = $(PROJECT_DIR)/dist
 # normal tarball produced during python package build
-TARBALL = $(wildcard $(DIST_DIR)/deborg-*.tar.gz)
+TARBALL = $(DIST_DIR)/deborg-$(VERSION).tar.gz
 # tarball format expected by Debian build tools
-DEB_TARBALL = $(patsubst $(DIST_DIR)/deborg-%.tar.gz,deborg_%.orig.tar.gz,$(TARBALL))
-# obtain the version of the tarball (e.g. 'deborg-1.0.0.tar.gz' -> '1.0.0')
-VERSION = $(patsubst $(DIST_DIR)/deborg-%.tar.gz,%,$(TARBALL))
+DEB_TARBALL = $(DIST_DIR)/deborg_$(VERSION).orig.tar.gz
 
-
-TESTING = "XXX XXX"
+# git tags
+VERSION_TAG = v$(VERSION)
 
 # python
 PYTHON = /usr/bin/python3
@@ -47,37 +47,91 @@ endef
 
 # git-buildpackage
 GBP = gbp
-GBP_BUILD = $(GBP) buildpackage
+GBP_BUILD = $(GBP) buildpackage --git-ignore-new
 GBP_BUILD_DIR = $(PROJECT_DIR)/$$($(GBP) config buildpackage.export-dir | sed 's|^./||')
 
 # destination
 PACKAGE_DIR = $(DIST_DIR)/Debian
 
 
+define USAGE
+
+    Usage: make <TARGET>
+
+    TARGETS
+
+      *General Targets*
+
+      usage                     Display this information.
+
+      version                   Display the version of the package as determined
+                                by the Makefile.
+
+      all                       Build a Python- and a Debian-package.
+
+      clean                     Remove all files and folders created by the calls in
+                                this Makefile. (Does not remove the git tag if one
+                                was created!)
+
+      *Specific Targets*
+
+      python_venv               Set-up a python virtual environment according to the
+                                requirements.txt
+
+      build_python_package      Build the Python package and wheel.
+
+      clean_python_venv         Remove the virtual environment.
+
+      clean_python_build        Remove folders and files created for Python packaging
+
+      clean_python_all          clean_python_build & clean_python_venv
+
+      git_version_tag           Create a git tag for the corresponding version if none
+                                exists.
+
+      deb_tarball               Copy the original tarball and rename it according to
+                                debian standard.
+
+      deb_package               Make a .deb package.
+
+      clean_deb_tarball         Remove the debian tarball.
+
+      clean_deb_packaging       Remove all files and folders created to produce the
+                                .deb package (including the package itself).
+
+      clean_all_deb_packaging   clean_deb_tarball & clean_deb_packaging
+
+endef
+export USAGE
 ####################################################################################################
 
 # only allow usage when VERSION is unset
 .PHONY: usage
 usage:
-	@echo "Usage: make <ACTION> VERSION='<version>'"
-	@echo ""
-	@echo "Variable VERSION has to be set for actions other than 'usage'."
-	@echo "If you didn't expect to see this, perhaps you forgot to set VERSION."
-	@echo "For the build to work also a tarball with the right version has to be in"
-	@echo "$(DIST_DIR)/deborg-<VERSION>.tar.gz"
-	@echo ""
-	@echo "ACTIONS:"
-	@echo "usage       - display this information"
-	@echo "deb_package - build a debian package for the specified VERSION."
-	@echo "              The version in debian/changelog, and dist have to match!"
-	@echo ""
+	@echo "$$USAGE"
+
+# display the version determined by the Makefile
+.PHONY: version
+version:
+	@echo "Package version: $(VERSION)"
+
+### General targets ###
+.PHONY: all
+all: deb_package
+
+# CLEANING
+.PHONY: clean
+clean: clean_all
+
+.PHONY: clean_all
+clean_all: clean_all_deb_packaging clean_all_python
 
 
 ### Python Package ###
 
 # Wrapper to test venv setup
-.PHONY: venv
-venv: $(VENV_DIR)
+.PHONY: python_venv
+python_venv: $(VENV_DIR)
 
 # Setup a Python virtual environment and install requirements
 $(VENV_DIR): $(VENV_REQUIREMENTS)
@@ -91,17 +145,19 @@ $(VENV_DIR): $(VENV_REQUIREMENTS)
 # Build the python package
 .PHONY: build_python_package
 build_python_package: $(VENV_DIR)
-	$(call execute_in_venv,\
-		python3 -m build --outdir $(DIST_DIR))
-	@echo "Finished building the python package."
+	@if [ ! -e "$(TARBALL)" ]; then\
+		$(call execute_in_venv,\
+		python3 -m build --outdir $(DIST_DIR));\
+		echo "Finished building the python package.";\
+	fi
 
 # The original tarball is produced during the build
 $(TARBALL): build_python_package
 
 ## CLEAN (python)
 # Remove virtual environment
-.PHONY: clean_venv
-clean_venv:
+.PHONY: clean_python_venv
+clean_python_venv:
 	@if [ -e $(VENV_DIR) ]; then rm -rf $(VENV_DIR); fi
 
 # Remove files created for python package build process
@@ -113,53 +169,52 @@ clean_python_build:
 		rmdir $(DIST_DIR);fi
 
 .PHONY: clean_all_python
-clean_all_python: clean_python_build clean_venv
-
-
+clean_all_python: clean_python_build clean_python_venv
 
 
 ### Debian Package ###
+
+# git version tag (for git-buildpackage)
+# check if a tag for the current version already exists,
+# if not, create one.
+# TODO: add dependency 'version'!
+.PHONY: git_version_tag
+git_version_tag:
+	@if git rev-parse $(VERSION_TAG) >/dev/null 2>&1; then\
+		echo "Tag $(VERSION_TAG) exists.";\
+	else\
+		git tag -a $(VERSION_TAG)\
+		-m "Tag automatically created by Makefile (git_version_tag)";\
+		echo "Created git tag $(VERSION_TAG) for HEAD.";\
+	fi
 
 # Create a tarball named as debian packaging tools expect it.
 $(DEB_TARBALL): $(TARBALL)
 	cp $< $@
 
+# wrapper for the debian specific tarball
+.PHONY: deb_tarball
+deb_tarball: $(DEB_TARBALL)
+	@echo "Created deb tarball: $(DEB_TARBALL)."
+
 # Build a debian package
 .PHONY: deb_package
-deb_package: $(DEB_TARBALL)
-	@echo "Building Debian package with VERSION = $(VERSION)"
-	cd $(PROJECT_DIR) && $(GBP_BUILD)
-	mv $(GBP_BUILD_DIR) $(PACKAGE_DIR)
-	rm $(DEB_TARBALL)
+deb_package: $(DEB_TARBALL) git_version_tag | clean_deb_packaging
+	@cd $(PROJECT_DIR) && $(GBP_BUILD)
+	@mv $(GBP_BUILD_DIR) $(PACKAGE_DIR)
+	@echo "Finished building Debian package for version = $(VERSION)"
+	@echo "Files were placed in $(PACKAGE_DIR)."
 
+# CLEAN (deb packaging)
+.PHONY: clean_deb_tarball
+clean_deb_tarball:
+	@if [ -e $(DEB_TARBALL) ]; then rm $(DEB_TARBALL); fi
 
-
-# CLEANING
-.PHONY: clean
-clean: clean_all
-
-.PHONY: clean_all
-clean_all: clean_deb_packaging clean_python_build clean_python_venv
-
-# Remove files created for debian package build process
 .PHONY: clean_deb_packaging
 clean_deb_packaging:
-	@if [ -e $(DEB_TARBALL) ]; then rm $(DEB_TARBALL); fi
 	@if [ -e $(GBP_BUILD_DIR) ]; then rm -rf $(GBP_BUILD_DIR); fi
 	@if [ -e $(PACKAGE_DIR) ]; then rm -rf $(PACKAGE_DIR); fi
 
-
-
-.PHONY: all
-all: test
-
-
-.PHONY: test
-test:
-	@echo "DIST_DIR = $(DIST_DIR)"
-	@echo "TARBALL = $(TARBALL)"
-	@echo "VERSION = $(VERSION)"
-	@echo "GBP_BUILD_DIR = $(GBP_BUILD_DIR)"
-	@echo "PACKAGE_DIR = $(PACKAGE_DIR)"
-	@echo "TESTING = $(TESTING)"
+.PHONY: clean_all_deb_packaging
+clean_all_deb_packaging: clean_deb_packaging clean_deb_tarball
 
