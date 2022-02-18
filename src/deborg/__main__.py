@@ -29,8 +29,8 @@ import sys
 from pathlib import Path
 from deborg.parser import Parser
 
-# TODO add an option to display version information
-def main():
+
+def usage() -> argparse.ArgumentParser:
     parser = argparse.ArgumentParser(
         prog="deborg",
         formatter_class=argparse.RawDescriptionHelpFormatter,
@@ -61,7 +61,14 @@ def main():
         help="Separator used between package names in the returned array.",
         type=str
     )
+    return parser
 
+
+
+# TODO add an option to display version information
+def main():
+    
+    parser = usage()
     args = parser.parse_args()
     file: Path = args.orgfile
 
