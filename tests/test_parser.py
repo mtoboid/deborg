@@ -268,5 +268,5 @@ class TestParser:
         for args in io_args:
             distro, release, expected_out = args
             packages: list[str] = Parser.extract_deb_packages(
-                file.as_posix(), distro, release)
+                file, distro, release)
             assert sorted(packages) == sorted(expected_out)

@@ -39,6 +39,7 @@ import re
 
 from collections.abc import Sequence
 from dataclasses import dataclass
+from pathlib import Path
 
 
 @dataclass
@@ -58,20 +59,23 @@ class Parser:
     LIST_BULLETS: str = "-+"
 
     @staticmethod
-    def extract_deb_packages(file: str, distro: str, release: str) -> list[str]:
+    def extract_deb_packages(file: Path, distro: str, release: str) -> list[str]:
         """
         Extract .deb packages from a file that match distro and release.
         (for line format see :func:`~parser.Parser.extract_deb_package_from_line`)
 
-        :param file: filename of the orgmode file
+        :param file: path to the orgmode file
         :param distro: string
         :param release: string
         :return: list of packages
         """
 
+        if not file.is_file():
+            raise FileNotFoundError(f"File {file} not found.")
+
         lines: list[str]
         packages: list[DebPakInfo] = list()
-        with open(file, "r") as _file:
+        with file.open(mode='r') as _file:
             lines = _file.readlines()
         for line in lines:
             package = Parser.extract_deb_package_from_line(line, distro, release)
