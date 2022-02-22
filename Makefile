@@ -18,7 +18,7 @@
 #    along with this program.  If not, see <https://www.gnu.org/licenses/>.
 #
 #
-SHELL = /usr/bin/sh
+SHELL = /bin/sh
 PROJECT_DIR := $(realpath .)
 
 # use the version from the setup config file
@@ -47,11 +47,28 @@ endef
 
 # git-buildpackage
 GBP = gbp
-GBP_BUILD = $(GBP) buildpackage --git-ignore-new
-GBP_BUILD_DIR = $(PROJECT_DIR)/$$($(GBP) config buildpackage.export-dir | sed 's|^./||')
 
-# destination
-PACKAGE_DIR = $(DIST_DIR)/Debian
+# ensure git-buildpackage is actually installed
+GBP_AVAILABLE := $(shell type $(GBP) >/dev/null 2>&1; echo "$$?")
+ifneq ($(GBP_AVAILABLE),0)
+$(error "gbp (git-buildpackage) is not available")
+endif
+
+# default build command for git-buildpackage
+GBP_BUILD = $(GBP) buildpackage --git-ignore-new
+
+# build directory (from settings file)
+GBP_BUILD_DIR_BASE := $(shell $(GBP) config buildpackage.export-dir | sed 's|^.*=||')
+# ensure a build directory is set
+# (otherwise GBP_BUILD_DIR points to the project root!)
+ifeq ($(GBP_BUILD_DIR_BASE),)
+$(error "Build directory for gbp (GBP_BUILD_DIR_BASE) is not set!")
+endif
+
+GBP_BUILD_DIR := $(abspath $(GBP_BUILD_DIR_BASE))
+
+# destination for debian package
+PACKAGE_DIR := $(DIST_DIR)/Debian
 
 
 define USAGE
@@ -158,7 +175,11 @@ $(TARBALL): build_python_package
 # Remove virtual environment
 .PHONY: clean_python_venv
 clean_python_venv:
+ifeq ($(VENV_DIR),)
+	@echo "WARNING! Trying to run clean while VENV_DIR is not set!"
+else
 	@if [ -e $(VENV_DIR) ]; then rm -rf $(VENV_DIR); fi
+endif
 
 # Remove files created for python package build process
 .PHONY: clean_python_build
@@ -212,8 +233,17 @@ clean_deb_tarball:
 
 .PHONY: clean_deb_packaging
 clean_deb_packaging:
+ifeq ($(GBP_BUILD_DIR),)
+	@echo "WARNING! Trying to run clean while GBP_BUILD_DIR is not set!"
+else
 	@if [ -e $(GBP_BUILD_DIR) ]; then rm -rf $(GBP_BUILD_DIR); fi
+endif
+ifeq ($(PACKAGE_DIR),)
+	@echo "WARNING! Trying to run clean while PACKAGE_DIR is not set!"
+else 
 	@if [ -e $(PACKAGE_DIR) ]; then rm -rf $(PACKAGE_DIR); fi
+endif
+
 
 .PHONY: clean_all_deb_packaging
 clean_all_deb_packaging: clean_deb_packaging clean_deb_tarball
