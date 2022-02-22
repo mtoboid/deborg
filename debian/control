@@ -3,10 +3,9 @@ Maintainer: Tobias Marczewski (mtoboid) <vortex@e.mail.de>
 Section: python
 Priority: optional
 Build-Depends:
- debhelper (>= 12),
+ debhelper (>= 11),
  dh-python,
  python3-all,
- python3-argparse-manpage,
  python3-setuptools
 Standards-Version: 4.4.0
 Homepage: https://github.com/mtoboid/deborg
