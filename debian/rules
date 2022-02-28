@@ -21,6 +21,6 @@ override_dh_auto_build: | doc/man/deborg.1.gz
 override_dh_auto_install:
 	python3 setup.py install --force --root=debian/python3-deborg --no-compile -O0 --install-layout=deb --prefix=/usr 
 
-# create man pages from the readme
-doc/man/deborg.1.gz: doc/man/deborg.man.1.rst
+# create man pages from the rst
+doc/man/deborg.1.gz: doc/man/deborg.rst
 	$(RST2MAN) $< | $(GZIP) > $@
