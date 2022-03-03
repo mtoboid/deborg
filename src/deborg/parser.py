@@ -68,14 +68,16 @@ class Parser:
     LIST_BULLETS: str = "-+"
 
     @staticmethod
-    def extract_deb_packages(file: Path, distro: str, release: str) -> list[str]:
+    def extract_deb_packages(file: Path, distro: str, release: str, tags: list[str] | None = None) -> list[str]:
         """
         Extract .deb packages from a file that match distro and release.
         (for line format see :func:`~parser.Parser.extract_deb_package_from_line`)
 
         :param file: path to the orgmode file
-        :param distro: string
-        :param release: string
+        :param distro: name of the distro
+        :param release: name of the release
+        :param tags: tag or tags to include
+
         :return: list of packages
 
         :raises: ParserError
@@ -91,7 +93,7 @@ class Parser:
             lines = _file.readlines()
         for nr, line in enumerate(lines):
             try:
-                package = Parser.extract_deb_package_from_line(line, distro, release)
+                package = Parser.extract_deb_package_from_line(line, distro, release, tags)
                 if package:
                     packages.append(package)
             except DuplicatePackageError as e:
@@ -163,7 +165,7 @@ class Parser:
 
         # still more than 1 package -> error
         if len(kept_packages) > 1:
-            msg = "More than two packages match the specifications."
+            msg = "More than two packages match the specifications"
             raise DuplicatePackageError(f"{msg}: {', '.join([p.name for p in kept_packages])}.")
         return kept_packages[0]
 

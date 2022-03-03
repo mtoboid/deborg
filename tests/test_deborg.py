@@ -6,6 +6,22 @@ from __future__ import annotations
 
 import pytest
 from pytest_console_scripts import script_runner
+from __main__ import Examples
+
+def test_two_package_match_in_same_line_raises_error(tmpdir, script_runner):
+    file_content: str = "" +\
+        "# file created by pytest test_deborg.py\n" +\
+        "# this item entry contains two packages matching any distro and release:\n" +\
+        "+ package-1-a, package-1-b\n"
+    error_msg_start: str = "Error while parsing"
+    error_msg_end: str = "Error in line 2: More than two packages match " +\
+                         "the specifications: package-1-a, package-1-b."
+    orgfile = tmpdir.join("testfile.org")
+    orgfile.write(file_content)
+    result = script_runner.run('deborg', str(orgfile), 'distro', 'release')
+    assert result.returncode == 1
+    assert result.stderr.strip().startswith(error_msg_start)
+    assert result.stderr.strip().endswith(error_msg_end)
 
 
 def test_version_argument_works(script_runner):
@@ -45,3 +61,10 @@ def test_parse_testfile(script_runner):
     output: list[str] = result.stdout.strip().split("::")
     # sort both lists as shell 'sort' seems to sort '-' differently
     assert sorted(output) == sorted(expected_packages)
+
+
+def test_example_file_examples(tmpdir, script_runner):
+    orgfile = tmpdir.join("testfile.org")
+    orgfile.write(file_content)
+    result = script_runner.run('deborg', str(orgfile), 'distro', 'release')
+    assert 0
