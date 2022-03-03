@@ -4,7 +4,7 @@ import pytest
 from collections.abc import Sequence
 from pathlib import Path
 
-from deborg.parser import DebPakInfo, Parser
+from deborg.orgparser import DebPakInfo, OrgParser
 
 
 class TestDebPakInfo:
@@ -418,25 +418,25 @@ class TestParser:
 
     def test_get_package_info(self, package_info_str_input):
         for line, pak_info in package_info_str_input:
-            assert Parser._get_package_info(line) == pak_info
+            assert OrgParser._get_package_info(line) == pak_info
 
     def test_split_package_line(self, package_line_split_input):
         for line, expected in package_line_split_input:
-            assert Parser._split_package_line(line) == expected
+            assert OrgParser._split_package_line(line) == expected
 
     def test_line_containing_no_package_info_returns_empty_list(self, non_package_lines):
         for line in non_package_lines:
-            output: DebPakInfo | None = Parser.extract_deb_package_from_line(line, "any", "any")
+            output: DebPakInfo | None = OrgParser.extract_deb_package_from_line(line, "any", "any")
             assert output is None
 
     def test_extract_deb_package_from_line_no_tags(self, deb_package_line_input):
         for line, *param, expected_DebPakInfo in deb_package_line_input:
-            package_info = Parser.extract_deb_package_from_line(line, *param)
+            package_info = OrgParser.extract_deb_package_from_line(line, *param)
             assert package_info == expected_DebPakInfo
 
     def test_extract_deb_package_from_line_w_tags(self, deb_package_line_input_with_tags):
         for line, *param, expected_DebPakInfo in deb_package_line_input_with_tags:
-            package_info = Parser.extract_deb_package_from_line(line, *param)
+            package_info = OrgParser.extract_deb_package_from_line(line, *param)
             assert package_info == expected_DebPakInfo
 
     def test_extract_deb_packages(self, org_file1_tests):
@@ -445,6 +445,6 @@ class TestParser:
         file, io_args = org_file1_tests
         for args in io_args:
             distro, release, expected_out = args
-            packages: list[str] = Parser.extract_deb_packages(
+            packages: list[str] = OrgParser.extract_deb_packages(
                 file, distro, release)
             assert sorted(packages) == sorted(expected_out)

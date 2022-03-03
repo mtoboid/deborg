@@ -6,7 +6,7 @@ from __future__ import annotations
 
 import pytest
 from pytest_console_scripts import script_runner
-from __main__ import Examples
+
 
 def test_two_package_match_in_same_line_raises_error(tmpdir, script_runner):
     file_content: str = "" +\
@@ -64,7 +64,7 @@ def test_parse_testfile(script_runner):
 
 
 def test_example_file_examples(tmpdir, script_runner):
-    orgfile = tmpdir.join("testfile.org")
-    orgfile.write(file_content)
-    result = script_runner.run('deborg', str(orgfile), 'distro', 'release')
+    # orgfile = tmpdir.join("testfile.org")
+    # orgfile.write(file_content)
+    # result = script_runner.run('deborg', str(orgfile), 'distro', 'release')
     assert 0

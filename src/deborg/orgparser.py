@@ -21,7 +21,7 @@ Parse an emacs orgmode file to extract Debian package information.
 Classes:
 
     DebPakInfo
-    Parser
+    OrgParser
 
 Misc variables:
 
@@ -53,15 +53,15 @@ class DebPakInfo:
     tags: list[str] = None
 
 
-class ParserError(BaseException):
+class OrgParserError(BaseException):
     pass
 
 
-class DuplicatePackageError(ParserError):
+class DuplicatePackageError(OrgParserError):
     pass
 
 
-class Parser:
+class OrgParser:
     """Class that contains static methods to parse an emacs .org file """
 
     # symbols that can indicate a line in a list, which can contain a .deb package
@@ -71,7 +71,7 @@ class Parser:
     def extract_deb_packages(file: Path, distro: str, release: str, tags: list[str] | None = None) -> list[str]:
         """
         Extract .deb packages from a file that match distro and release.
-        (for line format see :func:`~parser.Parser.extract_deb_package_from_line`)
+        (for line format see :func:`~parser.OrgParser.extract_deb_package_from_line`)
 
         :param file: path to the orgmode file
         :param distro: name of the distro
@@ -80,7 +80,7 @@ class Parser:
 
         :return: list of packages
 
-        :raises: ParserError
+        :raises: OrgParserError
         :raises: FileNotFoundError
         """
 
@@ -93,12 +93,12 @@ class Parser:
             lines = _file.readlines()
         for nr, line in enumerate(lines):
             try:
-                package = Parser.extract_deb_package_from_line(line, distro, release, tags)
+                package = OrgParser.extract_deb_package_from_line(line, distro, release, tags)
                 if package:
                     packages.append(package)
             except DuplicatePackageError as e:
                 msg: str = f"Error in line {nr}: {e}"
-                raise ParserError(msg)
+                raise OrgParserError(msg)
 
         return [p.name for p in packages]
 
@@ -131,21 +131,21 @@ class Parser:
 
         :raises: DuplicatePackageError, when more than one package matches in a given line.
         """
-        if not Parser._is_package_line(line):
+        if not OrgParser._is_package_line(line):
             return None
         _tags: list[str] = []
         if tags:
             _tags = list(tags)
         packages: list[DebPakInfo] = list()
 
-        for package_string in Parser._split_package_line(line):
-            packages.append(Parser._get_package_info(package_string))
+        for package_string in OrgParser._split_package_line(line):
+            packages.append(OrgParser._get_package_info(package_string))
 
         # filter packages
         # if a package lacks distro or release information (=None) treat it
         # to match any distro or release. If an exact match for distro or
         # distro and release can be found return this.
-        kept_packages: list[DebPakInfo] = Parser._matching_packages(packages, distro, release, _tags)
+        kept_packages: list[DebPakInfo] = OrgParser._matching_packages(packages, distro, release, _tags)
 
         if len(kept_packages) < 1:
             return None
@@ -192,7 +192,7 @@ class Parser:
     @staticmethod
     def _is_package_line(line: str) -> bool:
         """Is the passed line a list entry that can contain package information?"""
-        check = re.match("^\\s*[" + Parser.LIST_BULLETS + "]\\s+\\w", line)
+        check = re.match("^\\s*[" + OrgParser.LIST_BULLETS + "]\\s+\\w", line)
         return True if check else False
 
     @staticmethod
@@ -204,7 +204,7 @@ class Parser:
         :param line: a line containing package information
         :return: a list of strings containing the info for each separate package.
         """
-        if not Parser._is_package_line(line):
+        if not OrgParser._is_package_line(line):
             raise ValueError("Non package line passed!")
         package_strings: list[str] = []
         # remove <list-bullet>
