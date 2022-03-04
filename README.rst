@@ -24,8 +24,12 @@ Usage
 
 **deborg** is a python commandline tool to parse an
 `Emacs <https://www.gnu.org/software/emacs/>`_
-`orgmode <https://orgmode.org/>`_ file containing package specifications in
-unordered lists (example.org):
+`orgmode <https://orgmode.org/>`_ file
+containing package specifications in unordered lists. Package information
+consists of a package name followed by an (optional) specification of distro,
+release and tags in curly braces ``{}``, and separated by colons ``:``.
+
+(example.org):
 
 ::
    
@@ -79,8 +83,8 @@ Installation
 
 Just install the debian package. As mentioned in the **Pre-requisites** the
 default system python3 (/usr/bin/python3) has to be >=3.8 for the package to
-install correctly. That means that Debian >11 (bullseye) and Ubuntu from 20.04
-(focal) should work.
+install correctly. That means that Debian from version 11 (bullseye) and Ubuntu
+from version 20.04 (focal) should work.
 
 ``dpkg -i python3-deborg.deb``
 
