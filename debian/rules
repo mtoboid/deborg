@@ -7,6 +7,8 @@ export PYBUILD_DISABLE_python3=test
 # program to convert reStruturedText to groff man format
 RST2MAN = /usr/bin/rst2man
 GZIP = /usr/bin/gzip
+doc_dir = doc
+man_dir = $(doc_dir)/man
 
 %:
 	dh $@ --with python3 --buildsystem=pybuild
@@ -22,5 +24,8 @@ override_dh_auto_install:
 	python3 setup.py install --force --root=debian/python3-deborg --no-compile -O0 --install-layout=deb --prefix=/usr 
 
 # create man pages from the rst
-doc/man/deborg.1.gz: doc/man/deborg.rst
+doc/man/deborg.1.gz: doc/deborg.rst | $(man_dir)
 	$(RST2MAN) $< | $(GZIP) > $@
+
+$(man_dir):
+	mkdir $<
