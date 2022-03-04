@@ -32,7 +32,7 @@ TARBALL = $(DIST_DIR)/deborg-$(VERSION).tar.gz
 DEB_TARBALL = $(DIST_DIR)/deborg_$(VERSION).orig.tar.gz
 
 # git tags
-VERSION_TAG = v$(VERSION)
+VERSION_TAG = v-deb$(VERSION)
 
 # python
 PYTHON = /usr/bin/python3
