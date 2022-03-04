@@ -80,17 +80,38 @@ Building
 
 Python Package
 --------------
+
+If you haven't done so already clone the repository:
+
 ::
-   # clone the git repository
+
+   git clone https://github.com/mtoboid/deborg.git
+
+   
+Then set up a virtual environment:
+
+::
+   
    # go into project folder
    cd deborg
+   
    # setup a virtual environment
    python3 -m venv venv
    source venv/bin/activate
    python3 -m pip install --upgrade pip
    python3 -m pip install -r requirements.txt
-   # build the package and wheel
+
+
+After that building is easy:
+
+::
+   
+   # make sure you have the venv activated and then
    python3 -m build
+
+
+The package and wheel should now be in ``dist``.
+   
 
 Debian Package
 --------------
