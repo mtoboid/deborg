@@ -25,13 +25,20 @@ Usage
 **deborg** is a python commandline tool to parse an
 `Emacs <https://www.gnu.org/software/emacs/>`_
 `orgmode <https://orgmode.org/>`_ file containing package specifications in
-unordered lists (example.org)::
+unordered lists (example.org):
+
+::
+   
   + package-foo
   + package-baz, package-baz-alt {Ubuntu}, package-baz-x {Ubuntu:20.04}
   + apache {::server}
   + office-app-a {::desktop}, office-app-b {Debian::desktop}
 
-(example output)::
+    
+(example output):
+
+::
+   
   deborg example.org Debian any_release
   > package-foo package-baz
 
