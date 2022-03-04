@@ -130,7 +130,14 @@ The package and wheel should now be in ``dist/``.
 Debian Package
 --------------
 
-Switch the git branch to ``debian/master`` and see the README there.
+All the build process is handled by the Makefile, so if you have all
+dependencies installed you can build the Debian package by running:
+
+::
+
+   make all
+
+The package should then be in ``dist/Debian/python3-deborg_<version>.deb``.
 
 
 
