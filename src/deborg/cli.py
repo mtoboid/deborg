@@ -31,7 +31,6 @@ Misc variables:
 
 from __future__ import annotations
 
-from __main__ import __version__
 __author__ = "Tobias Marczewski"
 __version__ = '1.0.0'
 
