@@ -157,7 +157,7 @@ def cli_parser() -> argparse.ArgumentParser:
         indent + f"Copyright (C) 2022 {__author__}\n" + \
         indent + "This program comes with ABSOLUTELY NO WARRANTY.\n" + \
         indent + "This is free software, and you are welcome to redistribute it under the terms\n" + \
-        indent + "of the GNU General General Public License version 3 or later.\n\n" + \
+        indent + "of the GNU General Public License version 3 or later.\n\n" + \
         indent + "For more information and bug reports please visit https://github.com/mtoboid/deborg\n"
 
     description: str = "\ndescription:\n\n" + \
