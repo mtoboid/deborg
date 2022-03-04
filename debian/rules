@@ -28,4 +28,4 @@ doc/man/deborg.1.gz: doc/deborg.rst | $(man_dir)
 	$(RST2MAN) $< | $(GZIP) > $@
 
 $(man_dir):
-	mkdir $<
+	mkdir $@
