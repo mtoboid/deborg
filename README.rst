@@ -42,18 +42,28 @@ unordered lists (example.org):
   deborg example.org Debian any_release
   > package-foo package-baz
 
+::
+  
   deborg example.org Debian any_release --tags=server
   > package-foo package-baz apache
 
+::
+   
   deborg example.org Debian any_release --tags=desktop
   > package-foo package-baz office-app-b
 
+::
+   
   deborg example.org Ubuntu any_release
   > package-foo package-baz-alt
 
+::
+   
   deborg example.org Ubuntu 20.04
   > package-foo package-baz-x
-  
+
+::
+   
   deborg example.org Ubuntu 20.04 --tags=server,desktop
   > package-foo package-baz-x apache office-app-a
   
@@ -95,7 +105,7 @@ Then set up a virtual environment:
    # go into project folder
    cd deborg
    
-   # setup a virtual environment
+   # set up a virtual environment
    python3 -m venv venv
    source venv/bin/activate
    python3 -m pip install --upgrade pip
@@ -110,7 +120,7 @@ After that building is easy:
    python3 -m build
 
 
-The package and wheel should now be in ``dist``.
+The package and wheel should now be in ``dist/``.
    
 
 Debian Package
