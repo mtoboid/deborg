@@ -20,6 +20,9 @@
 
 from __future__ import annotations
 
+__author__ = "Tobias Marczewski (mtoboid)"
+__version__ = "1.0.0"
+
 import sys
 
 from argparse import ArgumentParser
