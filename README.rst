@@ -81,14 +81,50 @@ Pre-requisites
 Installation
 ============
 
-Just install the debian package. As mentioned in the **Pre-requisites** the
+As mentioned in the **Pre-requisites** the
 default system python3 (/usr/bin/python3) has to be >=3.8 for the package to
 install correctly. That means that Debian from version 11 (bullseye) and Ubuntu
 from version 20.04 (focal) should work.
 
-``dpkg -i python3-deborg.deb``
+Manually
+--------
 
+Download the latest package version from `releases
+<https://github.com/mtoboid/deborg/releases>`_, and install with ``dpkg``::
 
+  dpkg -i python3-deborg.deb
+
+PPA
+---
+
+If you want automatic updates, you can use my ppa:
+
+1) download my public gpg key (used to sign the packages) and save it in
+   ``/usr/share/keyrings`` ::
+     
+     curl https://mtoboid.github.io/ppa/mtoboid-ppa-keyring.gpg | sudo tee /usr/share/keyrings/mtoboid-ppa.gpg > /dev/null
+
+2) then add a sources file for the ppa to ``/etc/apt/sources.list.d``::
+
+     sudo nano /etc/apt/sources.list.d/ppa-mtoboid.sources
+
+   and write the following into the file::
+       
+     X-Repolib-Name: PPA mtoboid
+     Signed-By: /usr/share/keyrings/mtoboid-ppa.gpg
+     Types: deb
+     URIs: https://mtoboid.github.io/ppa
+     Suites: debian
+     Components: main
+     Architectures: all
+
+3) install deborg::
+
+     sudo apt update
+     sudo apt install python3-deborg
+     man deborg
+
+     
 Building
 ========
 
